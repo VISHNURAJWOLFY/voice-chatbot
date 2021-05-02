@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>My Bot</title>
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+ <style>
+ * {
+  background-color:rgba(173, 201, 233, 0.61);
+ box-sizing: border-box
+ }/* Set height of body and the document to 100% */
+ body, html {
+ height: 100%;
+ margin: 0;
+ font-family: Arial;
+ }
+ #chatbox {
+ margin-left: auto;
+ margin-right: auto;
+ width: 40%;
+ margin-top: 60px;
+ }
+ #userInput {
+ margin-left: auto;
+ margin-right: auto;
+ width: 40%;
+ margin-top: 300px;
+ }
+ #textInput {
+ width: 90%;
+ border: none;
+ border-bottom: 3px solid black;
+ font-family: monospace;
+ font-size: 17px;
+ }
+ .userText {
+ color: white;
+ font-family: monospace;
+ font-size: 17px;
+ text-align: right;
+ line-height: 30px;
+ }
+ .userText span {
+ background-color: #182dec;
+ padding: 10px;
+ border-radius: 10px;
+ }
+ .botText {
+ color: white;
+ font-family: monospace;
+ font-size: 17px;
+ text-align: left;
+ line-height: 30px;
+ }
+ .botText span {
+ background-color:#189eec;
+ padding: 10px;
+ border-radius: 10px;
+ }
+
+ .boxed {
+ margin-left: auto;
+ margin-right: auto;
+ width: 78%;
+ margin-top: 115px;
+ border: 1px solid black;
+ 
+ }
+ .btn {
+  background-color: DodgerBlue;
+  border: none;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 25px;
+  font-size: 14px;
+  cursor: pointer;
+  }
+  .btn:hover {
+  background-color: rgb(65, 121, 225);
+}
+ </style>
+</head>
+
+<body>
+ <div>
+  <h2 align="center"><b>Welcome to Chatbot</b></h2>
+
+ <div class="boxed">
+ <div>
+ <div id="chatbox">
+
+ </div>
+ <div id="userInput">
+ <input id="textInput" type="text"  name="msg" placeholder="Message...." />
+ </div>
+ </div>
+
+   <button class="btn" id='btnGiveCommand'> <i class="fa fa-microphone"></i>Speak</button>
+  </div>
+ </div>
+  <! -- a script for speech recognition, it calls get bot response script-->
+ <script>
+        var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+        var recognition = new SpeechRecognition();
+        var mail = new SpeechRecognition();
+        mail.lang= 'en-US';
+        mail.interimResults = false;
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        document.getElementById("btnGiveCommand").onclick = function()
+        {
+         recognition.start();
+        }
+       recognition.onresult = function(event) {
+                 var last = event.results.length - 1;
+                 var command = event.results[last][0].transcript;
+                 getBotResponse(command);
+                }
+
+
+ </script>
+
+  <! -- script for speech synthesis -->
+  <script>
+   function talkback(data) {
+   var synth = window.speechSynthesis;
+   voices = synth.getVoices[1];
+   var utterThis = new SpeechSynthesisUtterance(data);
+   utterThis.voice=voices;
+   synth.speak(utterThis);
+   }
+  </script>
+  <! -- script for talking user text msgs printing them, getting bot reply and printing them, it call speech synthesis script -->
+ <script>
+ function getBotResponse(rawText) {
+ var rawText = rawText;
+ var userHtml = '<p class="userText"><span>' + rawText + "</span></p>";
+ $("#textInput").val("");
+ $("#chatbox").append(userHtml);
+ document
+ .getElementById("userInput")
+ .scrollIntoView({ block: "start", behavior: "smooth" });
+ $.get("/get", { msg: rawText }).done(function (data) {
+ var botHtml = '<p class="botText"><span>' + data + "</span></p>";
+ talkback(data);
+ $("#chatbox").append(botHtml);
+ document
+ .getElementById("userInput")
+ .scrollIntoView({ block: "start", behavior: "smooth" });
+ });
+
+ }
+ $("#textInput").keypress(function (e) {
+ if (e.which == 13) {
+ getBotResponse($("#textInput").val());
+ }
+ });
+ </script>
+
+ </div>
+</div>
+</body>
+</html>
